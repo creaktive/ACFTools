@@ -1,0 +1,65 @@
+#############################################################################
+#              Default contents of X-Plane Airfoils directory               #
+#############################################################################
+
+# exact match
+Clark-Y (good propeller).afl	clarkysm.dat
+NACA 0006 (symmetrical).afl	naca0006.dat
+NACA 0009 (symmetrical).afl	n0009sm.dat
+NACA 0012 (symmetrical).afl	n0012.dat
+NACA 23012 (low-moment).afl	naca23012.dat
+NACA 2412 (popular).afl		naca2412.dat
+NACA 63-209 (supersonic).afl	naca63209.dat
+NACA 64-208 (supersonic).afl	naca64208.dat
+NACA 65(216)-415 (lam flow).afl	naca652415.dat
+NLF(1)-0215F (laminar flow).afl	nlf0215f.dat
+
+# not sure
+B747 Mid.afl			b737b.dat
+B747 Root.afl			b737a.dat
+B747 Tip.afl			b737c.dat
+
+# close numbers
+NACA 16 (good propeller).afl	naca0015.dat
+NACA 23010.afl			naca23012.dat
+NACA 23016.afl			naca23015.dat
+
+# similar names
+NASA LS(1)-0417 (hi-lift).afl	nasasc2-.dat
+NASA LS(1)-0417 inverted.afl	nasasc2-.dat
+
+# unsure
+NACA 63-015 (Helo Rotor).afl	naca632a015.dat
+NACA 65-006 (supersonic).afl	naca65206.dat
+
+# fake
+Flat Plate (very thin).afl	goe09k.dat
+NACA 2412 (popular) cuffed.afl	naca2412.dat
+NACA 2412 (popular) invert.afl	naca2412.dat
+
+
+#############################################################################
+#                         Airplane custom airfoils                          #
+# (remember to use TABs to separate AFL from DAT. Lines with no tabs fails) #
+#############################################################################
+
+# United-Air.acf
+Boeing Mid (high subsonic).afl	b737b.dat
+Boeing Root (high subsonic).afl	b737a.dat
+Boeing Tip (high subsonic).afl	b737c.dat
+Horz Stab.afl			naca2412.dat
+
+# F-22 Raptor.acf
+LERX.afl			goe09k.dat
+
+# C-119.acf
+c119 root.afl			naca2412.dat
+c119 tip.afl			naca2412.dat
+
+# f16.acf
+NACA 64204 (nose flap).afl	naca64206.dat
+delta.afl			goe09k.dat
+
+# SS1.acf
+MV 3211 HS.afl			goe09k.dat
+
