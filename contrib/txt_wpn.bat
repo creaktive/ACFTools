@@ -1,0 +1,1 @@
+acftools.exe -g -acf "parts\%1.wpn" -txt "parts\%1.txt"

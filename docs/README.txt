@@ -1,8 +1,7 @@
 ##############################################################################
-[ACFTools v0.5a] Set of tools to play with ACF files outside of Plane-Maker
-Perl script and modules coded by Stanislaw Pusep <stanis@linuxmail.org>
-Site of this and another X-Plane projects of mine:
-<http://www.x-plane.org/users/stas/>
+[ACFTools v0.6] Set of tools to play with ACF files outside of Plane-Maker
+Perl script and modules coded by Stanislaw Pusep <stas@sysd.org>
+Site of this and another X-Plane projects of mine: http://xplane.sysd.org/
 
 Allows you to:
  * export X-Plane (www.x-plane.com) aircraft data files to human-editable
@@ -23,7 +22,7 @@ Usage: acftools.exe <commands> [parameters]
         -noac3d         : DO NOT generate AC3D
         -(min|max)body N: write all bodies in specified range to AC3D
         -force LIST     : force extraction of bodies LIST (comma-separated N)
-        -normalize N    : normalize wings to N vert/surface (N>=2 or no wings!)
+        -normalize N    : normalize wings to N vert/surface (N>=2 or no wings!
  o Notes:
         * You can use abbreviations of commands/parameters (-gen or even -g
           instead of -generate).

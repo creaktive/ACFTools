@@ -1,7 +1,7 @@
 #!/usr/bin/perl -w
 
 #    This file is part of ACFTools X-Plane aircraft data exporter/importer
-#    Copyright (C) 2003  Stanislaw Y. Pusep
+#    Copyright (C) 2004  Stanislaw Y. Pusep
 #
 #    This program is free software; you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -17,8 +17,8 @@
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 #
-#    E-Mail:    stanis@linuxmail.org
-#    Site:      http://sysdlabs.hypermart.net/
+#    E-Mail:    stas@sysd.org
+#    Site:      http://xplane.sysd.org/
 
 package XPlane::Convert::ACFparse;
 

@@ -1,7 +1,7 @@
 #!/usr/bin/perl -w
 
 #    This file is part of ACFTools X-Plane aircraft data exporter/importer
-#    Copyright (C) 2003  Stanislaw Y. Pusep
+#    Copyright (C) 2004  Stanislaw Y. Pusep
 #
 #    This program is free software; you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -17,8 +17,8 @@
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 #
-#    E-Mail:    stanis@linuxmail.org
-#    Site:      http://sysdlabs.hypermart.net/
+#    E-Mail:    stas@sysd.org
+#    Site:      http://xplane.sysd.org/
 
 package XPlane::Convert::AC3Dparse;
 
@@ -41,7 +41,7 @@ sub AC3Dparse {
    die "Unknown AC3D file format!\n" unless /^AC3Db/i;
 
    my $kids = &seek_key (\*AC3D, 'kids');
-   die "Unable to work with multiple objects!\n" if $kids != 1;
+   die "Can only import one object per AC3D file!\nPlease delete objects you do not need to merge or put them into separate files.\n" if $kids != 1;
    my $name = &seek_key (\*AC3D, 'name');
    $name =~ s/^"//;
    $name =~ s/"$//;

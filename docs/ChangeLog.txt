@@ -11,3 +11,14 @@ v0.5
 	- added docs/QuickIntro.txt
 v0.5a
 	- fixed a bug in .WPN handling
+v0.6
+	- added lib/acf_h2def.pl which aids conversion from Austin's
+          "X-Plane ACF_format.html" to standart .def format!
+	- added ACF740.def
+	- added WPN740.def
+	- tested with X-Plane 7.40 RC-2 models
+	- now using 7.40 definition by default
+	- fixed bug of AC3D writer applying surface to only 12 of 20 sections
+	- made some error messages more clear
+	- updated author's mail & official site URL
+	- added contrib/*.bat contribution by Marcelo M. Marques

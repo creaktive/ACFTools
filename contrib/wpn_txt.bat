@@ -1,0 +1,1 @@
+acftools.exe -e wpn6_601.def -force 0 -acf "parts\%1.wpn"

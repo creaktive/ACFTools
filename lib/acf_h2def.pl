@@ -20,48 +20,46 @@
 #    E-Mail:    stas@sysd.org
 #    Site:      http://xplane.sysd.org/
 
-package XPlane::Surface;
 
-require 5.008;
+# Usage: take good old 'X-Plane ACF_format.html'; copy structure you like
+# (DO NOT include leading & trailing brackets "{}"!) to ACFx.h. Then:
+# perl acf_h2def.pl < ACFx.h > ACFx.def
+# After that open ACFx.def in your favourite text editor & replace
+# dumped constant names with respective values.
+
 
 use strict;
-use Exporter;
-use vars qw(@ISA @EXPORT);
 
-@ISA		= qw(Exporter);
-@EXPORT		= qw(surface);
+my %const = ();
+my $i = 0;
+while (<>) {
+   $i++;
+   chomp;
+   s/^\s+//;
+   s%//.*$%%;
+   s/\s+$//;
+   next unless $_;
 
+   foreach my $entry (split /\s*;\s*/, $_) {
+      my (@parse) = ($entry =~ /^(\w+?)\s+(.+)$/);
+      if (@parse != 2) {
+         print "bad record at line $i\n";
+      }
 
-sub surface {
-   my ($file, $ns, $vps, $type, $mat, $opt) = @_;
-   $mat = 0 unless defined $mat;
+      my $type = shift @parse;
+      foreach my $var (split /\s*,\s*/, shift @parse) {
+         $var =~ s%\s*\[\s*%[%g;
+         $var =~ s%\s*\]\s*%]%g;
+         ++$const{$1} while $var =~ /\[([^\d].*?)\]/g;
 
-   my @srf = ();
-   for (my $i = 0; $i < (($ns - 1) * $vps) - 1; $i++) {
-      if (defined $type and $type) {
-         push @srf, [$i + 1, $i + 0, $i + $vps];
-         push @srf, [$i + $vps, $i + $vps + 1, $i + 1];
-      } else {
-         push @srf, [$i + 0, $i + 1, $i + $vps];
-         push @srf, [$i + $vps + 1, $i + $vps, $i + 1];
+         print "$type $var\n";
       }
    }
-
-   printf $file "numsurf %d\n", (scalar @srf) + (defined $opt ? $opt : 0);
-   foreach my $tri (@srf) {
-      my ($a, $b, $c) = @$tri;
-      print $file <<EOS
-SURF 0x10
-mat $mat
-refs 3
-$a 0 0
-$b 0 0
-$c 0 0
-EOS
-      ;
-   }
-
-   return scalar @srf;
 }
 
-1;
+print STDERR "\n\nArray dimension constants:\n";
+foreach my $const (sort keys %const) {
+   print STDERR "$const\n";
+}
+
+exit;

@@ -1,7 +1,7 @@
 #!/usr/bin/perl -w
 
 #    This file is part of ACFTools X-Plane aircraft data exporter/importer
-#    Copyright (C) 2003  Stanislaw Y. Pusep
+#    Copyright (C) 2004  Stanislaw Y. Pusep
 #
 #    This program is free software; you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -17,8 +17,8 @@
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 #
-#    E-Mail:    stanis@linuxmail.org
-#    Site:      http://sysdlabs.hypermart.net/
+#    E-Mail:    stas@sysd.org
+#    Site:      http://xplane.sysd.org/
 
 require 5.008;
 
@@ -28,7 +28,7 @@ use File::Copy;
 use File::Spec::Functions;
 
 use vars qw($VERSION);
-$VERSION = '0.5a';
+$VERSION = '0.6';
 use constant DEFS	=> 'defs';
 use constant LIB	=> 'lib';
 
@@ -53,9 +53,8 @@ use XPlane::Convert::AC3Dmerge;
 print STDERR '#'x78, "\n";
 print STDERR <<HEADER
 [ACFTools v$VERSION] Set of tools to play with ACF files outside of Plane-Maker
-Perl script and modules coded by Stanislaw Pusep <stanis\@linuxmail.org>
-Site of this and another X-Plane projects of mine:
-<http://www.x-plane.org/users/stas/>
+Perl script and modules coded by Stanislaw Pusep <stas\@sysd.org>
+Site of this and another X-Plane projects of mine: http://xplane.sysd.org/
 
 Allows you to:
  * export X-Plane (www.x-plane.com) aircraft data files to human-editable
@@ -66,7 +65,7 @@ HEADER
 print STDERR '#'x78, "\n"x2;
 
 
-my $def		= 'ACF700.def';
+my $def		= 'ACF740.def';
 my $ext		= "\xa";
 my $gen		= 0;
 my $mer		= 0;
