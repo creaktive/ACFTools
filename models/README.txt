@@ -11,10 +11,10 @@ Templates:
 Samples:
 
  * '747.ac' - Boeing 747-400 from 'Aircraft/Heavy Metal'
- * 'Columbia.ac' - Columbia 400 from 'Aircraft/General Aviation'
+ * 'Piper.ac' - Piper PA-46-310 from 'Aircraft/General Aviation'
    (pay attention to propeller blades :)
  * 'Seabee.ac' - Republic RC-3 "Superbee" (model by Tracy Walker)
  * 'SpaceShipOne.ac' - two-in-one: 'White Knight' with attached
    'Space Ship One' from 'Aircraft/Space Ships' (model by Curt Boyll)
 
-NOTE: you CAN'T import parts from samples to ACF as they are optimized!
+NOTE: you CAN'T import parts from samples to ACF as they are *optimized*!

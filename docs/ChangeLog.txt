@@ -29,3 +29,8 @@ v0.61
 	- ACFTools can now run from PATH
 	- minor docs/help fixes
 	- added models/Seabee.ac model by Tracy Walker sample
+v0.62
+	- rewritten major part of XPlane::Convert::AC3Dparse
+	- now using AC3D 'loc' attribute to get/set bodies arm
+	- Win32 binary is now made with PAR - Perl Archive Toolkit
+	- recreated models/*

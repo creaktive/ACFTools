@@ -28,7 +28,7 @@ use File::Copy;
 use File::Spec::Functions;
 
 use vars qw($VERSION);
-$VERSION = '0.61';
+$VERSION = '0.62';
 use constant DEFS	=> 'defs';
 use constant LIB	=> 'lib';
 

@@ -65,3 +65,6 @@ MV 3211 HS.afl			goe09k.dat
 
 # F14.acf
 Flat Platef14hstab.afl		goe09k.dat
+
+# Piper Malibu.acf
+NACA 23015 (standrough).afl	naca23015.dat

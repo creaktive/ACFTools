@@ -102,12 +102,6 @@ sub AC3Dgen {
 
 #         next if $v[0] == 0 && $v[1] == 0 && $v[2] == 0;
 
-         if (defined $arm[$part]) {
-            for (my $i = 0; $i < 3; $i++) {
-               $v[$i] += ${$arm[$part]}[$i];
-            }
-         }
-
          push @{$ver[$part]}, [@v];
       } elsif ($lval =~ /_is_left\[(\d+)\]/) {
          wparm (\@wng, $1, 'is_left', $rval);
@@ -254,9 +248,12 @@ EOH
       $nv += $nver;
       $np++;
 
+      my $loc = join ' ', @{$arm[$part]};
+
       print AC3D <<EOO
 OBJECT poly
 name "body[$part]"
+loc $loc
 numvert $nver
 EOO
    ;

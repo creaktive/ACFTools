@@ -99,11 +99,13 @@ sub wing {
       }
    }
 
+   my $loc = join ' ', @{$data{arm}};
+
    my $nv = scalar @sec;
    print $file <<EOH
 OBJECT poly
 name "wing[$data{index}] // $fname"
-loc 0 0 0
+loc $loc
 numvert $nv
 EOH
    ;
@@ -152,11 +154,6 @@ sub wsec {
          @ver = ($z, $y, $x);
       } else {
          @ver = (-$z, $y, $x);
-      }
-
-      # arm
-      for (0..2) {
-         $ver[$_] += $$arm[$_];
       }
 
       # save

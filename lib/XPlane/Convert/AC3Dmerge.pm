@@ -38,14 +38,20 @@ sub AC3Dmerge {
    my ($ac3, $txt, $noorder) = @_;
    local $_;
 
-   my ($name, @ver) = AC3Dparse ($ac3);
-   my $numvert = scalar @ver;
+   my ($name, $ver, $arm) = AC3Dparse ($ac3);
+   my $part;
+   if ($name =~ /\[(\d+)\]/) {
+      $part = $1;
+   } else {
+      die "Malformed object name (should be 'body[N]' where N is proper integer)\n";
+   }
+   my $numvert = scalar @{$ver};
    if ($numvert != 360) {
       print STDERR "Warning: I expect 360 vertices and $ac3 has $numvert\n";
    }
    $name = quotemeta $name;
 
-   @ver = ACForder (18, @ver) unless $noorder;
+   $ver = ACForder (18, $ver) unless $noorder;
 
    local @ARGV = ($txt);
    $^I = '.bak';
@@ -63,13 +69,15 @@ sub AC3Dmerge {
       my ($type, $lval, $rval) = split /\s+/, $_, 3;
       my $start = "$type\t$lval\t= ";
       if ($lval =~ /$name/) {
-         if (@ver) {
-            $line = $start . '{ ' . join (', ', @{shift @ver}) . " }\n";
+         if (@{$ver}) {
+            $line = $start . '{ ' . join (', ', @{shift @{$ver}}) . " }\n";
             $nv++;
          } else {
             $line = $start . '{ 0, 0, 0 }' . "\n";
             $dfct++;
          }
+      } elsif (@{$arm} == 3 && $lval =~ /_arm\[$part\]$/) {
+         $line = $start . '{ ' . join (', ', @{$arm}) . "}\n";
       }
    } continue {
       print $line;
@@ -78,8 +86,8 @@ sub AC3Dmerge {
 
    if ($dfct) {
       printf STDERR "Import warning: %d vertex deficit!\n", $dfct;
-   } elsif (@ver) {
-      printf STDERR "Import warning: %d vertex exceeded!\n", scalar @ver;
+   } elsif (@{$ver}) {
+      printf STDERR "Import warning: %d vertex exceeded!\n", scalar @{$ver};
    }
 
    return ($nv, $nl);

@@ -64,7 +64,8 @@ sub ACFparse {
    sysread (ACF, $_, 4) || die "Can't read signature from $acf: $!\n";
    $_ = reverse $_ if $endian_swap;
    my $version = unpack 'i', $_;
-   print STDERR "ACF appears to come from X-Plane version [$version]\n\n";
+   print STDERR "ACF appears to come from X-Plane version [$version]\n",
+                "Using definition '$def'\n\n";
 
    sysseek (ACF, 0, SEEK_SET);
 

@@ -1,5 +1,5 @@
 ##############################################################################
-[ACFTools v0.61] Set of tools to play with ACF files outside of Plane-Maker
+[ACFTools v0.62] Set of tools to play with ACF files outside of Plane-Maker
 Perl script and modules coded by Stanislaw Pusep <stas@sysd.org>
 Site of this and another X-Plane projects of mine: http://xplane.sysd.org/
 

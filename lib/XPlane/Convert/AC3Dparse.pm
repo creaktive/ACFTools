@@ -37,56 +37,70 @@ sub AC3Dparse {
    local $_;
 
    open (AC3D, $ac3) || die "Can't open $ac3: $!\n";
-   $_ = <AC3D>;
+   $_ = scalar <AC3D>;
    die "Unknown AC3D file format!\n" unless /^AC3Db/i;
 
-   my $kids = &seek_key (\*AC3D, 'kids');
-   die "Can only import one object per AC3D file!\nPlease delete objects you do not need to merge or put them into separate files.\n" if $kids != 1;
-   my $name = &seek_key (\*AC3D, 'name');
+   my @ac3d = ();
+   while (<AC3D>) {
+      chomp;
+      s/\s+$//;
+      next unless $_;
+      push @ac3d, $_;
+   }
+   close AC3D;
+
+   my $count = 0;
+   my %header = ();
+   foreach (@ac3d) {
+      if (/^\d/) {
+         last;
+      } elsif (/^([a-z]+)\s+(.+)$/i) {
+         $header{$1} = $2;
+      }
+
+      $count++;
+   }
+
+   my $kids = &check (kids => \%header);
+   if ($kids != 1) {
+      die "Can only import one object per AC3D file!\n" .
+          "Please delete objects you do not need to merge or put them into separate files.\n";
+   }
+   my $name =  &check (name => \%header);
    $name =~ s/^"//;
    $name =~ s/"$//;
-   my $numvert = &seek_key (\*AC3D, 'numvert');
+   my $numvert = &check (numvert => \%header);
+
+   my @loc = ();
+   if (defined $header{loc}) {
+      @loc = split /\s+/, $header{loc};
+      die "Broken AC3D format with non-3D coordinate ;)\n" if @loc != 3;
+   }
 
    my @ver = ();
-   my @max = qw(0 0 0);
-   my @min = qw(0 0 0);
    for (my $i = 0; $i < $numvert; $i++) {
-      $_ = <AC3D>;
+      $_ = $ac3d[$count++];
       chomp;
       s/\s+$//;
       my @v = split /\s+/, $_;
       die "Vertex #$i doesn't looks good!\n" unless @v == 3;
       push @ver, [@v];
-
-      &centre (\@v, \@min, \@max);
    }
    die "$ac3 seems to be broken!\n" if scalar @ver != $numvert;
-   close AC3D;
 
-   my @arm = ();
-   for (0..2) {
-      $arm[$_] = $min[$_] + (($max[$_] - $min[$_]) / 2);
-   }
-
-   for (my $i = 0; $i < $numvert; $i++) {
-      for (0..2) {
-         ${$ver[$i]}[$_] -= $arm[$_];
-      }
-   }
-
-   return ($name, @ver);
+   return ($name, [@ver], [@loc]);
 }
 
 sub ACForder {
-   my ($verps, @ver) = @_;
-   my $numvert = scalar @ver;
+   my ($verps, $ver) = @_;
+   my $numvert = scalar @{$ver};
    die "AC3D file can't be ordered in $verps-vertex sections!\n" if $numvert % $verps;
 
    my @sort = ();
    my (@max, @min);
    for (my $i = 0; $i < $numvert / $verps; $i++) {
       my %sort = ();
-      my @sect = splice @ver, 0, $verps;
+      my @sect = splice @{$ver}, 0, $verps;
 
       @max = qw(0 0 0);
       @min = qw(0 0 0);
@@ -137,22 +151,7 @@ sub ACForder {
       }
    }
 
-   return @sort;
-}
-
-sub seek_key {
-   my ($file, $key) = @_;
-   local $_;
-   my $val = '';
-   while (<$file>) {
-      chomp;
-      s/\s+$//;
-      if (/^$key\s+(.+)$/i) {
-         $val = $1;
-         last;
-      }
-   }
-   return $val;
+   return [@sort];
 }
 
 sub centre {
@@ -165,6 +164,12 @@ sub centre {
       }
    }
    return;
+}
+
+sub check {
+   my ($var, $header) = @_;
+   die "AC3D attribute '$var' undefined!\n" unless defined ${$header} {$var};
+   return ${$header} {$var};
 }
 
 1;
