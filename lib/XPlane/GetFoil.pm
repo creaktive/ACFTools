@@ -28,13 +28,14 @@ use strict;
 use Exporter;
 use vars qw(@ISA @EXPORT);
 
+use FindBin qw($RealBin);
 use File::Basename;
 use File::Spec::Functions;
 
 @ISA		= qw(Exporter);
 @EXPORT		= qw(getfoil);
 
-use constant DATA => 'data';
+use constant DATA => catfile ($RealBin, 'data');
 use constant SPEC => 'airfoil.lst';
 
 

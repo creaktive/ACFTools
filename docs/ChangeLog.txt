@@ -22,3 +22,10 @@ v0.6
 	- made some error messages more clear
 	- updated author's mail & official site URL
 	- added contrib/*.bat contribution by Marcelo M. Marques
+v0.61
+	- fixed 7.40 "is_left" misc. wing attribute
+	  (7.00 also had it, but it was undocumented until 7.40)
+	- removed dumb & unnecessary Time::HiRes dependency
+	- ACFTools can now run from PATH
+	- minor docs/help fixes
+	- added models/Seabee.ac model by Tracy Walker sample

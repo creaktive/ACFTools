@@ -63,3 +63,5 @@ delta.afl			goe09k.dat
 # SS1.acf
 MV 3211 HS.afl			goe09k.dat
 
+# F14.acf
+Flat Platef14hstab.afl		goe09k.dat

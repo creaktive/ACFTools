@@ -1,5 +1,5 @@
 ##############################################################################
-[ACFTools v0.6] Set of tools to play with ACF files outside of Plane-Maker
+[ACFTools v0.61] Set of tools to play with ACF files outside of Plane-Maker
 Perl script and modules coded by Stanislaw Pusep <stas@sysd.org>
 Site of this and another X-Plane projects of mine: http://xplane.sysd.org/
 
@@ -11,7 +11,7 @@ Allows you to:
 
 Usage: acftools.exe <commands> [parameters]
  o Commands:
-        -extract DEF    : extract TXT from ACF
+	-extract [DEF]	: extract TXT from ACF (opt: using DEF definition)
         -generate       : generate ACF from TXT
         -merge          : merge body from AC3D file to TXT
  o Parameters:
@@ -22,7 +22,7 @@ Usage: acftools.exe <commands> [parameters]
         -noac3d         : DO NOT generate AC3D
         -(min|max)body N: write all bodies in specified range to AC3D
         -force LIST     : force extraction of bodies LIST (comma-separated N)
-        -normalize N    : normalize wings to N vert/surface (N>=2 or no wings!
+        -normalize N    : normalize wings to N vert/surface (N>=2 or no wings!)
  o Notes:
         * You can use abbreviations of commands/parameters (-gen or even -g
           instead of -generate).
@@ -33,7 +33,7 @@ Usage: acftools.exe <commands> [parameters]
         * "generate" doesn't need DEF at all (it is implicit in TXT)
         * If file to be created already exists backup is made automatically.
  o Examples:
-        acftools.exe --extract=ACF700.def --acffile="F-22 Raptor.acf"
+        acftools.exe --extract=ACF700 --acffile="F-22 Raptor.acf"
         (extract 'F-22 Raptor.txt' from 'F-22 Raptor.acf')
 
         acftools.exe -e -acf "F-22 Raptor.acf"
@@ -46,15 +46,17 @@ Usage: acftools.exe <commands> [parameters]
         (reverse operation; generate 'F-22 Raptor.acf' from 'F-22 Raptor.txt')
 
 
-Why AC3D?
-=========
+Why AC3D (http://www.ac3d.org/)?
+================================
 
 You'd better ask "why not?". First of all AC3D can import/export many
 different formats like AutoCAD DXF, 3D Studio, Milkshape, and OBJ
 between others. Second, AC3D is small and lightweight. Full installation
-has below 7 Mb. And finally, AC3D has all editing resources you will ever
-need. I only see 2 problems with AC3D: it's shareware and it is for Intel
-machines, not Apple.
+has below 7 Mb. Third, AC3D format is supported by 'Progressive Fans'
+(http://www.terra.es/personal3/atoniman/) so I can view my models directly
+from Total Commander (http://www.ghisler.com/). And finally, AC3D has all
+editing resources you will ever need. I only see 2 problems with AC3D:
+it's shareware and it is for Intel machines, not Apple.
 
 
 Tips & Tricks:

@@ -109,6 +109,8 @@ sub AC3Dgen {
          }
 
          push @{$ver[$part]}, [@v];
+      } elsif ($lval =~ /_is_left\[(\d+)\]/) {
+         wparm (\@wng, $1, 'is_left', $rval);
       }
    }
    close TXT;
@@ -159,7 +161,7 @@ sub AC3Dgen {
       print STDERR "\n", '#'x78, "\n",
                    "No airfoil definitions found for:\n\n";
       foreach my $fail (sort { lc $a cmp lc $b} keys %fails) {
-         printf STDERR "%s\n", $fail;
+         printf STDERR "'%s'\n", $fail;
       }
       print STDERR "\nPlease describe them in 'airfoil.lst' file found in 'data' sub-directory.\n",
                    '#'x78, "\n";
@@ -188,8 +190,14 @@ EOH
 
       $wing{arm}	= $arm[$ind];
       $wing{filehandle}	= \*AC3D;
-      $wing{is_right}	= $ind % 2;
       $wing{material}	= 0;
+
+      if (defined $wing{is_left}) {
+         $wing{is_right} = $wing{is_left} ? 0 : 1;
+         delete $wing{is_left};
+      } else {
+         $wing{is_right} = $ind % 2;
+      }
 
       # left vstab
       $wing{dihed} = 180 - $wing{dihed} if $ind == 18;

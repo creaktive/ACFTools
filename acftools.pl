@@ -28,22 +28,21 @@ use File::Copy;
 use File::Spec::Functions;
 
 use vars qw($VERSION);
-$VERSION = '0.6';
+$VERSION = '0.61';
 use constant DEFS	=> 'defs';
 use constant LIB	=> 'lib';
 
 BEGIN { $0 = $^X unless $^X =~ m%(^|[/\\])(perl)|(perl.exe)$%i }
-use FindBin;
+use FindBin qw($RealBin $RealScript);
 
 use Getopt::Long;
 use IO::Handle;
 STDERR->autoflush (1);
 
-use Time::HiRes qw(gettimeofday);
-use vars qw($pbart);
-$pbart = 0;
+use vars qw($pbar);
+$pbar = 0;
 
-use lib catfile (dirname ($FindBin::RealScript), LIB);
+use lib catfile ($RealBin, LIB);
 use XPlane::Convert::ACFgen;
 use XPlane::Convert::ACFparse;
 use XPlane::Convert::AC3Dgen;
@@ -103,7 +102,8 @@ if ($ext eq "\xa") {
 } else {
    $ext = 1;
 }
-$def = catfile ($FindBin::RealBin, DEFS, $def) unless -f $def;
+$def .= '.def' unless $def =~ /\.def$/i;
+$def = catfile ($RealBin, DEFS, $def) unless -f $def;
 
 
 if ($ext && $acf) {
@@ -151,9 +151,9 @@ if ($ext && $acf) {
    }
 } else {
    print STDERR <<USAGE
-Usage: $FindBin::RealScript <commands> [parameters]
+Usage: $RealScript <commands> [parameters]
  o Commands:
-	-extract DEF	: extract TXT from ACF
+	-extract [DEF]	: extract TXT from ACF (opt: using DEF definition)
 	-generate	: generate ACF from TXT
 	-merge		: merge body from AC3D file to TXT
  o Parameters:
@@ -175,16 +175,16 @@ Usage: $FindBin::RealScript <commands> [parameters]
 	* "generate" doesn't need DEF at all (it is implicit in TXT)
 	* If file to be created already exists backup is made automatically.
  o Examples:
-	$FindBin::RealScript --extract=ACF700.def --acffile="F-22 Raptor.acf"
+	$RealScript --extract=ACF700 --acffile="F-22 Raptor.acf"
 	(extract 'F-22 Raptor.txt' from 'F-22 Raptor.acf')
 
-	$FindBin::RealScript -e -acf "F-22 Raptor.acf"
+	$RealScript -e -acf "F-22 Raptor.acf"
 	(same as above)
 
-	$FindBin::RealScript -me -ac3d ladar.ac -txt "F-22 Raptor.txt"
+	$RealScript -me -ac3d ladar.ac -txt "F-22 Raptor.txt"
 	(merge *single* 3D body from 'ladar.ac' to 'F-22 Raptor.txt')
 
-	$FindBin::RealScript -g -txt "F-22 Raptor.txt"
+	$RealScript -g -txt "F-22 Raptor.txt"
 	(reverse operation; generate 'F-22 Raptor.acf' from 'F-22 Raptor.txt')
 USAGE
 ;
@@ -329,13 +329,12 @@ sub leave {
 
 sub progress {
    my ($total, $now) = @_;
-   my $time = scalar gettimeofday;
-   if ($time - $pbart >= 0.01) {
-      my $prc = (100 * $now) / $total;
-      my $bar = '=' x int ($prc / 2);
-      printf STDERR "(%-50s) %6.2f%% complete\r", $bar, $prc;
+   my $prc = (100 * $now) / $total;
+   my $sbar = int ($prc / 2);
+   if ($sbar != $pbar) {
+      printf STDERR "(%-50s) %6.2f%% complete\r", ('=' x $sbar), $prc;
+      $pbar = $sbar;
    }
-   $pbart = $time;
    return;
 } 
 
