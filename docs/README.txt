@@ -1,5 +1,5 @@
 ##############################################################################
-[ACFTools v0.1] Set of tools to play with ACF files outside of Plane-Maker
+[ACFTools v0.5] Set of tools to play with ACF files outside of Plane-Maker
 Perl script and modules coded by Stanislaw Pusep <stanis@linuxmail.org>
 Site of this and another X-Plane projects of mine:
 <http://www.x-plane.org/users/stas/>
@@ -10,39 +10,40 @@ Allows you to:
  * import plaintext/3D mesh back to ACF file.
 ##############################################################################
 
-Usage: acftools.pl <commands> [parameters]
+Usage: acftools.exe <commands> [parameters]
  o Commands:
-	-extract DEF	: extract TXT from ACF
-	-generate	: generate ACF from TXT
-	-merge		: merge body from AC3D file to TXT
+        -extract DEF    : extract TXT from ACF
+        -generate       : generate ACF from TXT
+        -merge          : merge body from AC3D file to TXT
  o Parameters:
-	-acffile FILE	: name of ACF file to process
-	-txtfile FILE	: name of TXT file to process
-	-ac3dfile FILE	: name of AC3D file to process
-	-noorder	: DO NOT sort vertices while merging bodies
-	-noac3d|nowings	: DO NOT generate AC3D or no wings in AC3D
-	-(min|max)body N: write all bodies in specified range to AC3D
-	-force LIST	: force extraction of bodies LIST (comma-separated N)
+        -acffile FILE   : name of ACF file to process
+        -txtfile FILE   : name of TXT file to process
+        -ac3dfile FILE  : name of AC3D file to process
+        -noorder        : DO NOT sort vertices while merging bodies
+        -noac3d         : DO NOT generate AC3D
+        -(min|max)body N: write all bodies in specified range to AC3D
+        -force LIST     : force extraction of bodies LIST (comma-separated N)
+        -normalize N    : normalize wings to N vert/surface (N>=2 or no wings!)
  o Notes:
-	* You can use abbreviations of commands/parameters (-gen or even -g
-	  instead of -generate).
-	* The only required parameter for "extract" command is -acffile.
-	  Both -txtfile and -ac3dfile are derivated from it.
-	* "generate" command and -txtfile has the same relation.
-	* By default "extract" uses the latest DEF file.
-	* "generate" doesn't need DEF at all (it is implicit in TXT)
-	* If file to be created already exists backup is made automatically.
+        * You can use abbreviations of commands/parameters (-gen or even -g
+          instead of -generate).
+        * The only required parameter for "extract" command is -acffile.
+          Both -txtfile and -ac3dfile are derivated from it.
+        * "generate" command and -txtfile has the same relation.
+        * By default "extract" uses the latest DEF file.
+        * "generate" doesn't need DEF at all (it is implicit in TXT)
+        * If file to be created already exists backup is made automatically.
  o Examples:
-        acftools.pl --extract=ACF700.def --acffile="F-22 Raptor.acf" --txtfile="F-22 Raptor.txt"
+        acftools.exe --extract=ACF700.def --acffile="F-22 Raptor.acf"
         (extract 'F-22 Raptor.txt' from 'F-22 Raptor.acf')
 
-        acftools.pl -e -acf "F-22 Raptor.acf"
+        acftools.exe -e -acf "F-22 Raptor.acf"
         (same as above)
 
-        acftools.pl -me -ac3d ladar.ac -txt "F-22 Raptor.txt"
+        acftools.exe -me -ac3d ladar.ac -txt "F-22 Raptor.txt"
         (merge *single* 3D body from 'ladar.ac' to 'F-22 Raptor.txt')
 
-        acftools.pl -g -txt "F-22 Raptor.txt"
+        acftools.exe -g -txt "F-22 Raptor.txt"
         (reverse operation; generate 'F-22 Raptor.acf' from 'F-22 Raptor.txt')
 
 
@@ -64,7 +65,7 @@ When generating AC3D model, if ACFTools fails with message:
 "No airfoil definition found ..."
 you can do one of:
 
-1) Run 'acftools.pl -nowings ...' so wings are skipped.
+1) Run 'acftools.pl -normalize 0 ...' so wings are skipped.
 2) Get into http://www.aae.uiuc.edu/m-selig/ads/coord_database.html
    download right airfoil and edit 'data/airfoil.lst'.
 3) Simply edit 'data/airfoil.lst' aliasing new airfoil to any existent
@@ -100,18 +101,20 @@ To extract weapon models just use:
 Special Thanks To:
 ==================
 
+ * Andy Colebourne for AC3D of course.
  * Austin Meyer for X-Plane itself :)
+ * Blair Zajac for Math::Interpolate Perl routines.
  * Emmanuel Sanvito for Perl Utilities and byte-swapping idea I stolen :)
  * Marcelo M. Marques for idea of extracting wings too.
  * Marco Testi for wing & airfoil specifications.
  * Mark Fisher for ACF format definitions.
+ * Mark Tecson for being "test pilot" for my QuickIntro.txt
  * Tony Gondola for ACF2Text that was the inspiration for ACFTools.
 
 
 TODOs:
 ======
 
- * Different foils for root & tip.
  * Export gear models.
 
 
@@ -137,20 +140,22 @@ ACF to TXT and backwards converters:
    designed ACFTools to work for latest X-Plane. Other versions work
    but with tons of parameters.
  * It seems that Perl float numbers are different from C float numbers.
-   Thus, some are rounded and in some rare cases values are lost an all.
+   Thus, some are rounded and in some rare cases values are lost at all.
 
 Body-related:
  * You may only import one model at time. Note that I did it to protect
    YOU; if many models would be imported at time they might acidentally
    overwrite things you didn't wanted to be overwritten. Beware!
  * Surface triangulation has inverse order of that observed in X-Plane.
+   This doesn't see to be important but who knows?
  * Unlinked vertices from "ghost" sections should be filtered manually.
  * Engine nacelles should be rotated for helos.
  * Wheel fairing surfaces are "convolved" to inside of fairing.
  * When importing AC3D models they do loose original arm.
+   But they are re-centered at least :)
+ * When merging section vertices are ordered anti-clockwise. May break
+   some very weird designs. If it happens to be yours, pass -noorder flag.
 
 Wing-related:
  * No rotor wings at all.
- * No different airfoils for root/tip. Root foil applies to the whole wing.
  * I don't understand how *exactly* X-Plane handles incidence.
- * Some airfoils bring mess and desorder to wing surfaces.

@@ -1,5 +1,26 @@
 #!/usr/bin/perl -w
-package AC3Dgen;
+
+#    This file is part of ACFTools X-Plane aircraft data exporter/importer
+#    Copyright (C) 2003  Stanislaw Y. Pusep
+#
+#    This program is free software; you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation; either version 2 of the License, or
+#    (at your option) any later version.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with this program; if not, write to the Free Software
+#    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+#
+#    E-Mail:    stanis@linuxmail.org
+#    Site:      http://sysdlabs.hypermart.net/
+
+package XPlane::Convert::AC3Dgen;
 
 require 5.008;
 
@@ -7,16 +28,18 @@ use strict;
 use Exporter;
 use vars qw(@ISA @EXPORT);
 
-use GetFoil;
-use Surface;
-use Wing;
+use File::Basename;
+use XPlane::GetFoil;
+use XPlane::Surface;
+use XPlane::Wing;
+use XPlane::Wing::Airfoil;
 
 @ISA		= qw(Exporter);
 @EXPORT		= qw(AC3Dgen);
 
 
 sub AC3Dgen {
-   my ($plain, $ac3d, $nowings, $min, $max, @force) = @_;
+   my ($plain, $ac3d, $normalize, $min, $max, @force) = @_;
    local $_;
    $min = 44 unless defined $min;
    $max = 66 unless defined $max;
@@ -53,6 +76,8 @@ sub AC3Dgen {
          wparm (\@wng, $1, '_elements', $rval);
       } elsif ($lval =~ /_Rafl0\[(\d+)\]/) {
          wparm (\@wng, $1, '_Rafl0', $rval);
+      } elsif ($lval =~ /_Tafl0\[(\d+)\]/) {
+         wparm (\@wng, $1, '_Tafl0', $rval);
       } elsif ($lval =~ /_arm\[(\d+)\]/) {
          my $part = $1;
          @{$arm[$part]} = &vert ($rval);
@@ -89,11 +114,65 @@ sub AC3Dgen {
    close TXT;
 
 
+   # pre-cache airfoils/wings
+   my %foils = ();
+   my %fails = ();
+   my $chkfoil = sub {
+      my $afl = shift;
+      my $foil = getfoil ($afl);
+      if ($foil) {
+         unless (defined $foils{$foil}) {
+            my @foil = airfoil ($foil);
+            my $name = shift @foil;
+            $foils{$foil} = [$name, normalize ($normalize, @foil)];
+         }
+      } else {
+         $fails{$afl}++;
+      }
+      return $foil;
+   };
+
+   print STDERR "caching airfoils\n";
+   my @wings = ();
+   my $wingn = ($normalize < 2) ? 0 : scalar @wng;
+   for (my $ind = 0; $ind < $wingn; $ind++) {
+      my %wing = %{$wng[$ind]};
+      next if not defined $wing{semilen} or not $wing{semilen};
+      next unless grep $_ == $ind, @par;
+
+      $wing{index} = $ind;
+
+      die "Parser: incomplete incidence table\n" if @{$wing{incidence}} < $wing{_elements};
+      splice @{$wing{incidence}}, $wing{_elements};
+      delete $wing{_elements};
+
+      $wing{root_foil} = &$chkfoil ($wing{_Rafl0});
+      delete $wing{_Rafl0};
+      $wing{tip_foil} = &$chkfoil ($wing{_Tafl0});
+      delete $wing{_Tafl0};
+
+      push @wings, { %wing };
+   }
+
+
+   if (%fails) {
+      print STDERR "\n", '#'x78, "\n",
+                   "No airfoil definitions found for:\n\n";
+      foreach my $fail (sort { lc $a cmp lc $b} keys %fails) {
+         printf STDERR "%s\n", $fail;
+      }
+      print STDERR "\nPlease describe them in 'airfoil.lst' file found in 'data' sub-directory.\n",
+                   '#'x78, "\n";
+      return;
+   }
+
+
    open (AC3D, ">$ac3d") || die "Can't write to $ac3d: $!\n";
    print AC3D <<EOH
 AC3Db
 MATERIAL "ac3dmat1" rgb 1 1 1  amb 0.2 0.2 0.2  emis 0 0 0  spec 0.5 0.5 0.5  shi 10  trans 0
 MATERIAL "ac3dmat13" rgb 0.533333 0.533333 0.533333  amb 0.2 0.2 0.2  emis 0 0 0  spec 0.5 0.5 0.5  shi 10  trans 0
+MATERIAL "ac3dmat8" rgb 0.627451 0.752941 0.878431  amb 0.2 0.2 0.2  emis 0 0 0  spec 0.5 0.5 0.5  shi 10  trans 0
 OBJECT world
 kids _DUNNO_
 EOH
@@ -103,42 +182,19 @@ EOH
    my $nv = 0;
    my $ns = 0;
    my $np = 0;
-
-
-   my $wingn = $nowings ? 0 : @wng;
-   for (my $ind = 0; $ind < $wingn; $ind++) {
-      my %wing = %{$wng[$ind]};
-      next if not defined $wing{semilen} or not $wing{semilen};
-      next unless grep $_ == $ind, @par;
+   foreach my $wing (@wings) {
+      my %wing = %{$wing};
+      my $ind = $wing{index};
 
       $wing{arm}	= $arm[$ind];
       $wing{filehandle}	= \*AC3D;
-      $wing{index}	= $ind;
       $wing{is_right}	= $ind % 2;
       $wing{material}	= 0;
-
-      die "Parser: incomplete incidence table\n" if @{$wing{incidence}} < $wing{_elements};
-      splice @{$wing{incidence}}, $wing{_elements};
-      delete $wing{_elements};
 
       # left vstab
       $wing{dihed} = 180 - $wing{dihed} if $ind == 18;
 
-      my $foil = getfoil ($wing{_Rafl0});
-      if ($foil) {
-         print STDERR "generating wing[$ind] using airfoil $foil\n";
-         $wing{foil} = $foil;
-      } else {
-         print STDERR "\n", '#'x78, "\n",
-                      "No airfoil definition found for \"$wing{_Rafl0}\"!\n",
-                      "Please describe it in 'airfoil.lst' file found in 'data' sub-directory.\n",
-                      '#'x78, "\n";
-         close AC3D;
-         unlink $ac3d;
-         return;
-      }
-      delete $wing{_Rafl0};
-
+      # accounter
       my $gen = sub {
          my ($wnv, $wns) = wing (%wing);
          $nv += $wnv;
@@ -146,8 +202,14 @@ EOH
          $np ++;
       };
 
-      # propellers
+      # resolve cached foils
+      printf STDERR "\twing[%d] => root '%s' & tip '%s'\n", $ind, basename ($wing{root_foil}), basename ($wing{tip_foil});
+      $wing{root_foil} = $foils{$wing{root_foil}};
+      $wing{tip_foil} = $foils{$wing{tip_foil}};
+
       if ($ind <= 7) {
+         # handle propellers
+         $wing{material} = 2;
          $wing{is_right} = $bcw[$ind] > 0 ? 1 : 0;
          for (my $i = 0; $i < @{$wing{incidence}}; $i++) {
             ${$wing{incidence}}[$i] -= 90;
@@ -157,17 +219,20 @@ EOH
             &$gen;
          }
       } else {
+         # handle normal wings
          &$gen;
       }
 
-#      foreach my $key (sort keys %wing) {
-#         my $val;
-#         if (ref $wing{$key} eq 'ARRAY') {
-#            $val = '[' . join (', ', @{$wing{$key}}) . ']';
-#         } else {
-#            $val = $wing{$key};
+#      if ($ind == 8 || $ind == 9) {
+#         foreach my $key (sort keys %wing) {
+#            my $val;
+#            if (ref $wing{$key} eq 'ARRAY') {
+#               $val = '[' . join (', ', @{$wing{$key}}) . ']';
+#            } else {
+#               $val = $wing{$key};
+#            }
+#            printf STDERR "%-16s=> %s,\n", $key, $val;
 #         }
-#         printf DBUG "%-16s=> %s,\n", $key, $val;
 #      }
    }
 

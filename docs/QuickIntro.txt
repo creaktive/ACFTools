@@ -1,0 +1,46 @@
+How to use ACFTools? Well... My GUI programming skills are poor, so
+ACFTools is, as most of my programs, command-line. You can write it
+in any folder. For example, C:\ACFTools of C:\X-Plane\ACFTools. But
+you may operate it from DOS prompt. Remember this buddy from ancient
+computing days? :)
+If not, here is brief usage explanation. Go to
+"Start->Run", type "command" and press
+"OK". This will open black screen which is better seen when
+configured to have 80x50 characters-wide. There, you type: "cd
+C:\ACFTools" or whatever directory ACFTools is located. There,
+type "acftools" (note that "acftools",
+"acftools.exe" and "acftools.pl" may be different
+files but they do refer the same thing: main ACFTools executable).
+That screen that appears is parameter list. Now, for extract good old
+747, type:
+
+acftools --extract --acffile="C:\X-Plane\Aircraft\HeavyMetal\B747-400 United\United-Air.acf" --txtfile 747.txt
+
+This will start conversion from ACF to TXT & AC3D formats. Lots of
+stuff are dumped to screen. When process is finished, "Press
+<RETURN> to exit" appears. At this point, 747.txt & 747.ac
+files were created. 747.txt is plaintext detailed description of 747
+aircraft. It's HUGE: 5 Mb! Then, 747.ac is AC3D model of 747. Just
+open it in AC3D and have a lot of fun :)
+Note that you may separate body you wish to edit into separate file.
+For example, select "body[47]" group, copy it and paste in
+new file: "body.ac". Then edit it as you wish. Note that
+you can't add nor delete vertices/surfaces. This is enormous
+limitation imposed by X-Plane itself.
+When you want to IMPORT edited model back to ACF file, do following:
+
+Step 1:
+acftools --merge --ac3dfile=body.ac --txtfile 747.txt
+Step 2:
+acftools --generate --txtfile 747.txt --acffile 747.acf
+
+Sometimes resulting file is weirdly broken, this is because my
+merging algorithm is poor :(
+To avoid that use "--noorder" parameter:
+
+acftools --merge --ac3dfile=body.ac --txtfile 747.txt --noorder
+
+Unfortunately ACFTools stills very ugly and difficult to use piece of
+software. Even me, it's author, suffered several hours to try to
+import cool duct fans into X-Plane. I hope to expand ACFTools in
+brief future!

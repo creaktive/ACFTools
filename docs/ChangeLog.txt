@@ -1,0 +1,11 @@
+v0.1
+	- first public release
+v0.2
+	- section vertex sorting for merging added
+v0.5
+	- bug fixes for merging routines
+	- support for interpolated wings
+	- better organized source & package
+	- licensed under GPL
+	- propeller blades in different color now
+	- added docs/QuickIntro.txt

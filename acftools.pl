@@ -1,4 +1,25 @@
 #!/usr/bin/perl -w
+
+#    This file is part of ACFTools X-Plane aircraft data exporter/importer
+#    Copyright (C) 2003  Stanislaw Y. Pusep
+#
+#    This program is free software; you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation; either version 2 of the License, or
+#    (at your option) any later version.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with this program; if not, write to the Free Software
+#    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+#
+#    E-Mail:    stanis@linuxmail.org
+#    Site:      http://sysdlabs.hypermart.net/
+
 require 5.008;
 
 use strict;
@@ -6,7 +27,10 @@ use File::Basename;
 use File::Copy;
 use File::Spec::Functions;
 
-use constant DEFS => 'defs';
+use vars qw($VERSION);
+$VERSION = '0.5';
+use constant DEFS	=> 'defs';
+use constant LIB	=> 'lib';
 
 BEGIN { $0 = $^X unless $^X =~ m%(^|[/\\])(perl)|(perl.exe)$%i }
 use FindBin;
@@ -19,15 +43,13 @@ use Time::HiRes qw(gettimeofday);
 use vars qw($pbart);
 $pbart = 0;
 
+use lib catfile (dirname ($FindBin::RealScript), LIB);
+use XPlane::Convert::ACFgen;
+use XPlane::Convert::ACFparse;
+use XPlane::Convert::AC3Dgen;
+use XPlane::Convert::AC3Dmerge;
 
-use ACFgen;
-use ACFparse;
-use AC3Dgen;
-use AC3Dmerge;
 
-
-use vars qw($VERSION);
-$VERSION = '0.2';
 print STDERR '#'x78, "\n";
 print STDERR <<HEADER
 [ACFTools v$VERSION] Set of tools to play with ACF files outside of Plane-Maker
@@ -49,7 +71,6 @@ my $ext		= "\xa";
 my $gen		= 0;
 my $mer		= 0;
 my $nac		= 0;
-my $now		= 0;
 my $nor		= 0;
 my $min		= 44;
 my $max		= 66;
@@ -57,13 +78,13 @@ my @force	= ();
 my $acf		= '';
 my $txt		= '';
 my $ac3		= '';
+my $normalize	= 9;
 
 GetOptions (
 	'extract:s'	=> \$ext,
 	generate	=> \$gen,
 	merge		=> \$mer,
 	noac3d		=> \$nac,
-	nowings		=> \$now,
 	noorder		=> \$nor,
 	'minbody=i'	=> \$min,
 	'maxbody=i'	=> \$max,
@@ -71,6 +92,7 @@ GetOptions (
 	'acffile=s'	=> \$acf,
 	'txtfile=s'	=> \$txt,
 	'ac3dfile=s'	=> \$ac3,
+	'normalize=i'	=> \$normalize,
 );
 
 @force = split /\s*,\s*/, join (',', @force);
@@ -97,7 +119,7 @@ if ($ext && $acf) {
    unless ($nac) {
       print STDERR "\n\n * '$txt' => '$ac3'\n";
       &doesexists ($ac3);
-      &plain2ac3d ($txt, $ac3, $now, $min, $max, @force);
+      &plain2ac3d ($txt, $ac3, $normalize, $min, $max, @force);
    }
 } elsif ($ext && $txt) {
    die "Supported file extension: .TXT\n" unless $txt =~ /\.txt$/i;
@@ -106,7 +128,7 @@ if ($ext && $acf) {
 
    print STDERR " * '$txt' => '$ac3'\n";
    &doesexists ($ac3);
-   &plain2ac3d ($txt, $ac3, $now, $min, $max, @force);
+   &plain2ac3d ($txt, $ac3, $normalize, $min, $max, @force);
 } elsif ($gen && $txt) {
    die "Supported file extension: .TXT\n" unless $txt =~ /\.txt$/i;
 
@@ -119,6 +141,7 @@ if ($ext && $acf) {
    die "Supported file extension: .AC\n" unless $ac3 =~ /\.ac$/i;
 
    $txt = &chtype ($ac3, 'txt')		unless $txt;
+   die "Supported file extension: .TXT\n" unless $txt =~ /\.txt$/i;
 
    print STDERR " * '$ac3' => '$txt'\n\n";
    unless (-e $txt) {
@@ -139,9 +162,10 @@ Usage: $FindBin::RealScript <commands> [parameters]
 	-txtfile FILE	: name of TXT file to process
 	-ac3dfile FILE	: name of AC3D file to process
 	-noorder	: DO NOT sort vertices while merging bodies
-	-noac3d|nowings	: DO NOT generate AC3D or no wings in AC3D
+	-noac3d		: DO NOT generate AC3D
 	-(min|max)body N: write all bodies in specified range to AC3D
 	-force LIST	: force extraction of bodies LIST (comma-separated N)
+	-normalize N	: normalize wings to N vert/surface (N>=2 or no wings!)
  o Notes:
 	* You can use abbreviations of commands/parameters (-gen or even -g
 	  instead of -generate).
@@ -152,7 +176,7 @@ Usage: $FindBin::RealScript <commands> [parameters]
 	* "generate" doesn't need DEF at all (it is implicit in TXT)
 	* If file to be created already exists backup is made automatically.
  o Examples:
-	$FindBin::RealScript --extract=ACF700.def --acffile="F-22 Raptor.acf" --txtfile="F-22 Raptor.txt"
+	$FindBin::RealScript --extract=ACF700.def --acffile="F-22 Raptor.acf"
 	(extract 'F-22 Raptor.txt' from 'F-22 Raptor.acf')
 
 	$FindBin::RealScript -e -acf "F-22 Raptor.acf"
@@ -274,12 +298,12 @@ sub acf2plain {
 }
 
 sub plain2ac3d {
-   my ($plain, $ac3d, $nowings, $min, $max, @force) = @_;
+   my ($plain, $ac3d, $normalize, $min, $max, @force) = @_;
 
-   print STDERR "\nextracting bodies $min..$max\n";
+   print STDERR "\nextracting bodies $min..$max & ", (($normalize < 2) ? 'NO' : 'all'), " wings\n";
    print STDERR "(also forcing bodies [", join (',', @force), "])\n" if @force;
 
-   my ($nv, $ns, $no) = AC3Dgen ($plain, $ac3d, $nowings, $min, $max, @force);
+   my ($nv, $ns, $no) = AC3Dgen ($plain, $ac3d, $normalize, $min, $max, @force);
 
    if (defined $nv) {
       print STDERR "dumped $nv vertices and $ns surfaces within $no objects\n";
