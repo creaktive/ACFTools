@@ -26,7 +26,7 @@ xflt mis_fin_sweep[4]
 xflt mis_fin_conrat[4]   
 xflt mis_fin_steer[4]  
 xflt mis_fin_dihed[8]
-xchr mis_afl[160]
+xchr mis_afl[4][40]
 xflt mis_thrust[3]
 xflt mis_duration[3]
 xflt mis_cone_width

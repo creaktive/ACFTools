@@ -54,6 +54,19 @@ sub ACFgen {
    my $script = 0;
    my $lines = 0;
 
+   my $dumpver = sub {
+      my (@x, @y, @z);
+      foreach my $ver (@ver) {
+         push @x, $$ver[0];
+         push @y, $$ver[1];
+         push @z, $$ver[2] if @$ver == 3;
+      }
+      foreach my $ver (@x, @y, @z) {
+          $total += &writepacked (\*ACF, 'xflt', $ver, undef);
+      }
+      @ver = ();
+   };
+
    while (<TXT>) {
       $lines++;
       $script += length $_;
@@ -82,16 +95,7 @@ sub ACFgen {
 
       if ($oldname && @ver && $oldname ne $name) {
 #         printf "// %s %s[%d]\n", $vty, $oldname, scalar @ver;
-         my (@x, @y, @z);
-         foreach my $ver (@ver) {
-            push @x, $$ver[0];
-            push @y, $$ver[1];
-            push @z, $$ver[2] if @$ver == 3;
-         }
-         foreach my $ver (@x, @y, @z) {
-             $total += &writepacked (\*ACF, 'xflt', $ver, undef);
-         }
-         @ver = ();
+         &$dumpver;
       }
 
       $rval =~ s/^\s*=\s*//;
@@ -117,6 +121,8 @@ sub ACFgen {
       $oldname = $name;
    }
    close TXT;
+
+   &$dumpver if @ver;
    close ACF;
 
    return $total, $lines;

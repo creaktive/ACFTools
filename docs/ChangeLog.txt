@@ -9,3 +9,5 @@ v0.5
 	- licensed under GPL
 	- propeller blades in different color now
 	- added docs/QuickIntro.txt
+v0.5a
+	- fixed a bug in .WPN handling
