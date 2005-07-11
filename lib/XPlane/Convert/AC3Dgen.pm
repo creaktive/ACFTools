@@ -248,7 +248,12 @@ EOH
       $nv += $nver;
       $np++;
 
-      my $loc = join ' ', @{$arm[$part]};
+      my $loc;
+      if (defined $arm[$part]) {
+         $loc = join ' ', @{$arm[$part]};
+      } else {
+         $loc = "0 0 0";
+      }
 
       print AC3D <<EOO
 OBJECT poly

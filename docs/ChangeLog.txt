@@ -34,3 +34,6 @@ v0.62
 	- now using AC3D 'loc' attribute to get/set bodies arm
 	- Win32 binary is now made with PAR - Perl Archive Toolkit
 	- recreated models/*
+v0.62a
+	- fixed WPN740.def: weird radius attribute shi(f)ted 3D model
+	- fixed weapon AC3D generation: weapons has no arm

@@ -1,6 +1,5 @@
 xchr platform
-xflt filler
-xint type
+xint type[2]
 xint free_flyer
 xint action_mode
 xflt x_wpn_att
@@ -95,6 +94,7 @@ xflt impact_time
 xflt xflt_overflow[973]
 xint xint_overflow[1000]
 xchr xchr_overflow[1000]
+xflt body_radius
 xflt PARTS_body_X[1][20][18]
 xflt PARTS_body_Y[1][20][18]
 xflt PARTS_body_Z[1][20][18]
